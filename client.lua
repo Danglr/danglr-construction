@@ -38,7 +38,7 @@ end
 -------------- FUNCTIONS -------------
 --------------------------------------
 
-local function PickupBrickLocation()
+local function PickupWoodLocation()
     local player = PlayerPedId()
     local playercoords = GetEntityCoords(player)
     PickupLocation = math.random(1, #Config.Locations[closestJob]["WoodLocations"])
@@ -90,9 +90,9 @@ CreateThread(function()
             local coords = GetEntityCoords(player)
             if not PickedUp then
                 if GetDistanceBetweenCoords(coords, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.x, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.y, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.z, true) < 1.3  then
-                    DrawText3D(Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.x, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.y, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.z, "[G] | Pickup Brick")
+                    DrawText3D(Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.x, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.y, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.z, "[G] | Pickup Wood")
                     if IsControlJustReleased(0, Config.Keys["G"]) then
-                        TriggerEvent('rsg-construction:PickupBrick')
+                        TriggerEvent('rsg-construction:PickupWood')
                         Wait(1000)
                     end
                 end
@@ -129,7 +129,7 @@ RegisterNetEvent('rsg-construction:StartJob', function()
                 closestJob = k
             end
         end
-        PickupBrickLocation()
+        PickupWoodLocation()
         hasJob = true
 
         if Config.Prints then
@@ -248,7 +248,7 @@ RegisterNetEvent('rsg-construction:DropWood', function()
             Wait(100)
 
             if DropCount < Config.DropCount then
-                PickupBrickLocation()
+                PickupWoodLocation()
             else
                 RSGCore.Functions.Notify('Work Completed! Go Get Your Check', 'error') 
             end
