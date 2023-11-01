@@ -187,25 +187,25 @@ RegisterNetEvent('rsg-construction:CollectPaycheck', function()
     end
 end)
 
-RegisterNetEvent('rsg-construction:PickupBrick', function()
+RegisterNetEvent('rsg-construction:PickupWood', function()
     local coords = GetEntityCoords(PlayerPedId())
     if hasJob then
         if not PickedUp then
             PickedUp = true
-            local BrickProp = CreateObject(GetHashKey("p_woodplank01x"), coords.x, coords.y, coords.z, 1, 0, 1)
-            SetEntityAsMissionEntity(BrickProp, true, true)
-            RequestAnimDict("mech_loco_m@generic@carry@ped@walk")
-            while not HasAnimDictLoaded("mech_loco_m@generic@carry@ped@walk") do
+            local WoodProp = CreateObject(GetHashKey("p_woodplank01x"), coords.x, coords.y, coords.z, 1, 0, 1)
+            SetEntityAsMissionEntity(WoodProp, true, true)
+            RequestAnimDict("mech_carry_box")
+            while not HasAnimDictLoaded("mech_carry_box") do
                 Wait(100)
             end
             TaskPlayAnim(PlayerPedId(), "mech_carry_box", "idle", 2.0, -2.0, -1, 67109393, 0.0, false, 1245184, false, "UpperbodyFixup_filter", false)
             Citizen.InvokeNative(0x6B9BBD38AB0796DF, WoodProp, PlayerPedId(), GetEntityBoneIndexByName(PlayerPedId(),"SKEL_L_Hand"), 0.1, 0.15, 0.0, 90.0, 90.0, 20.0, true, true, false, true, 1, true)
-            AttachedProp = true                                                                                                 ---         X      Y     Z    90.0, 0 = angle of prop
+            AttachedProp = true
             RemoveBlip(jobBlip)
 
             Wait(500)
             for _,v in pairs(promptstable) do
-                PromptDelete(promptstable[v].PickupBrickPrompt)
+                PromptDelete(promptstable[v].PickupWoodPrompt)
             end
 
             DropWoodLocation()
