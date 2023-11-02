@@ -22,6 +22,12 @@ Config.JobNpc = {
 	[3] = { ["Model"] = "A_M_M_ValFarmer_01", ["Pos"] = vector3(-1414.259, -2210.495, 43.392242), ["Heading"] = 321.20864, ["Name"] = "ThievesLanding" }, -- ThievesLanding
 	[4] = { ["Model"] = "A_M_M_ValFarmer_01", ["Pos"] = vector3(467.43194, 604.91381, 110.4023),  ["Heading"] = 235.18406, ["Name"] = "OilFields" },      -- HeartlandOilFields
 	[5] = { ["Model"] = "A_M_M_ValFarmer_01", ["Pos"] = vector3(2751.9958, -1476.287, 45.394123), ["Heading"] = 212.52,    ["Name"] = "Saint Denis" },      -- SD Docks
+	[6] = { ["Model"] = "A_M_M_ValFarmer_01", ["Pos"] = vector3(-1400.77, -206.05, 102.9), ["Heading"] = 200.27, ["Name"] = "Appleseed" }, -- Apple Seed Timber Company
+	[7] = { ["Model"] = "A_M_M_ValFarmer_01", ["Pos"] = vector3(2896.34, 632.53, 57.72), ["Heading"] = -04.44, ["Name"] = "Roanoke" }, -- Roanoke
+	[8] = { ["Model"] = "A_M_M_ValFarmer_01", ["Pos"] = vector3(576.87, 1703.86, 187.50), ["Heading"] = 244.52, ["Name"] = "Bacchus" }, -- Bacchus
+	[9] = { ["Model"] = "A_M_M_ValFarmer_01", ["Pos"] = vector3(-1235.99, 531.70, 94.15), ["Heading"] = -04.44, ["Name"] = "Wallace" }, -- Wallace
+	[10] = { ["Model"] = "A_M_M_ValFarmer_01", ["Pos"] = vector3(-317.44, -355.26, 87.58), ["Heading"] = 2.646, ["Name"] = "Newhanoberg" }, -- Newhanoberg
+	[11] = { ["Model"] = "A_M_M_ValFarmer_01", ["Pos"] = vector3(-339.6, 796.82, 116.6), ["Heading"] = 150.07, ["Name"] = "Valentine" }, -- Valentine
 }
 
 -- LOCATION OF JOB SITES --
@@ -99,6 +105,85 @@ Config.Locations = {
 			[5] = { coords = vector3(-4191.837, -3441.233, 37.12722)  },
 			[6] = { coords = vector3(-4203.014, -3446.297, 40.019214) },
 			[7] = { coords = vector3(-4205.782, -3444.85, 39.994956)  },
+		},
+	},
+	["Appleseed"] = {
+		["Location"] = vector3(-1400.77, -206.05, 102.9),
+		["WoodLocations"] = { -- Pickup Wood Locations
+			[1] = { coords = vector3(-1350.71, -204.24, 102.07) },
+		},
+		["DropLocations"] = { -- Drop Wood Locations
+			[1] = { coords = vector3(-1379.87, -235.09, 101.03) },
+			[2] = { coords = vector3(-1411.31, -184.57, 100.58) },
+			[3] = { coords = vector3(-1442.35, -218.5, 103.36) },
+			[4] = { coords = vector3(-1419.02, -255.94, 100.03) },
+			[5] = { coords = vector3(-1448.54, -245.83, 102.91) },
+		},
+	},
+	["Roanoke"] = {
+		["Location"] = vector3( 2896.34, 632.53, 57.72),
+		["WoodLocations"] = { -- Pickup Wood Locations
+			[1] = { coords = vector3( 2904.26, 633.82, 54.80) },
+		},
+		["DropLocations"] = { -- Drop Wood Locations
+			[1] = { coords = vector3( 2903.97, 646.04, 56.31) }, -- Table Saw
+			[2] = { coords = vector3( 2888.23, 616.31, 57.66) },
+			[3] = { coords = vector3( 2880.13, 593.21, 57.85) },
+			[4] = { coords = vector3( 2893.62, 619.87, 57.73) },
+		},
+	},
+	["Bacchus"] = {
+		["Location"] = vector3( 576.87, 1703.86, 187.50),
+		["WoodLocations"] = { -- Pickup Wood Locations
+			[1] = { coords = vector3( 558.35, 1707.22, 186.11) },
+		},
+		["DropLocations"] = { -- Drop Wood Locations
+			[1] = { coords = vector3( 548.09, 1730.99, 187.95) }, -- Table Saw
+			[2] = { coords = vector3( 573.30, 1709.95, 187.71) },
+			[3] = { coords = vector3( 585.90, 1684.65, 187.52) },
+			[4] = { coords = vector3( 584.56, 1670.65, 187.75) },
+		},
+	},
+	["Wallace"] = {
+		["Location"] = vector3( -1235.99, 531.70, 94.15),
+		["WoodLocations"] = { -- Pickup Wood Locations
+			[1] = { coords = vector3( -1230.17, 540.21, 93.83) },
+		},
+		["DropLocations"] = { -- Drop Wood Locations
+			[1] = { coords = vector3( -1217.75, 557.07, 93.35) }, -- Table Saw
+			[2] = { coords = vector3( -1199.53, 563.18, 92.39) },
+			[3] = { coords = vector3( -1243.99, 542.69, 93.29) },
+			[4] = { coords = vector3( -1207.09, 567.17, 92.15) },
+		},
+	},
+	["Newhanoberg"] = {
+		["Location"] = vector3( -1235.99, 531.70, 94.15),
+		["WoodLocations"] = { -- Pickup Wood Locations
+			[1] = { coords = vector3( -337.988, -375.503, 87.230) },
+		},
+		["DropLocations"] = { -- Drop Wood Locations
+			[1] = { coords = vector3( -375.020, -363.744, 86.581) }, -- Table Saw
+			[2] = { coords = vector3( -331.789, -355.577, 88.016) },
+			[3] = { coords = vector3( -358.909, -359.120, 87.238) },
+			[4] = { coords = vector3( -331.364, -336.885, 88.589) },
+			[5] = { coords = vector3( -326.475, -352.535, 88.047) },
+			[6] = { coords = vector3( -381.319, -361.999, 86.745) },
+			[7] = { coords = vector3( -321.650, -339.955, 88.165) },
+		},
+	},
+	["Valentine"] = {
+		["Location"] = vector3( -339.6, 796.82, 116.6),
+		["WoodLocations"] = { -- Pickup Wood Locations
+			[1] = { coords = vector3( -338.27, 820.2, 117.52) },
+		},
+		["DropLocations"] = { -- Drop Wood Locations
+			[1] = { coords = vector3( -324.77, 809.84, 117.40) },
+			[2] = { coords = vector3( -294.33, 826.015, 119.7) },
+			[3] = { coords = vector3( -301.95, 845.45, 119.88) },
+			[4] = { coords = vector3( -313.52, 737.87, 117.9) },
+			[5] = { coords = vector3( -266.80, 742.8, 117.44) },
+			[6] = { coords = vector3( -234.89, 771.425, 117.88) },
+			[7] = { coords = vector3( -232.97, 748.85, 117.74) },
 		},
 	}
 }
