@@ -11,12 +11,77 @@ end)
 -- CHECKS IF PLAYER WAS PAID TO PREVENT EXPLOITS --
 RSGCore.Functions.CreateCallback('danglr-construction:CheckIfPaycheckCollected', function(source, cb)
     local src = source
-    local Player = RSGCore.Functions.GetPlayer(src) 
-    local payment = (DropCount * Config.PayPerDrop)
-    if Player.Functions.AddMoney(Config.Moneytype, payment) then
-        DropCount = 0
-        cb(true)
-    else
-        cb(false)
+    local Player = RSGCore.Functions.GetPlayer(src)
+    local identifier = Player.PlayerData.citizenid
+    exports.oxmysql:execute("SELECT level FROM player_xp WHERE identifier = ?", {identifier}, function(result)
+        local level = 1
+        if result[1] then
+            level = result[1].level
+        end
+        -- Calculate bonus: bonusMultiplier = 1 + ((level - 1) * CashBonusPerLevel)
+        local bonusMultiplier = 1 + ((level - 1) * Config.CashBonusPerLevel)
+        local payment = (DropCount * Config.PayPerDrop) * bonusMultiplier
+        if Player.Functions.AddMoney(Config.Moneytype, payment) then
+            DropCount = 0
+            cb(true)
+        else
+            cb(false)
+        end
+    end)
+end)
+
+-- Event to add XP to a player's record and handle level-ups
+RegisterNetEvent('rsg-construction:AddXP', function(xpAmount, performanceMultiplier)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    if Player then
+        local multiplier = performanceMultiplier or 1.0
+        xpAmount = math.floor(xpAmount * multiplier * Config.XPRewardMultiplier)
+        local identifier = Player.PlayerData.citizenid
+
+        exports.oxmysql:execute(
+            "INSERT INTO player_xp (identifier, xp, level) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE xp = xp + ?",
+            {identifier, xpAmount, 1, xpAmount},
+            function(rowsChanged)
+                print("Added " .. xpAmount .. " XP to player " .. identifier)
+                -- Check for level-up
+                exports.oxmysql:execute("SELECT xp, level FROM player_xp WHERE identifier = ?", {identifier}, function(result)
+                    if result[1] then
+                        local newXP = result[1].xp
+                        local currentLevel = result[1].level
+                        local leveledUp = false
+                        while newXP >= (currentLevel * Config.XPPerLevel) do
+                            currentLevel = currentLevel + 1
+                            leveledUp = true
+                        end
+                        if leveledUp then
+                            exports.oxmysql:execute("UPDATE player_xp SET level = ? WHERE identifier = ?", {currentLevel, identifier})
+                            TriggerClientEvent('rsg-construction:Notify', src, "Congratulations! You leveled up to Level " .. currentLevel)
+                        end
+                    end
+                end)
+            end
+        )
     end
 end)
+
+-- New callback to check player's Construction XP and level
+RSGCore.Functions.CreateCallback('rsg-construction:CheckXP', function(source, cb)
+    local src = source
+    local Player = RSGCore.Functions.GetPlayer(src)
+    if Player then
+        local identifier = Player.PlayerData.citizenid
+        exports.oxmysql:execute("SELECT xp, level FROM player_xp WHERE identifier = ?", {identifier}, function(result)
+            local xp = 0
+            local level = 1
+            if result[1] then
+                xp = result[1].xp
+                level = result[1].level
+            end
+            cb({xp = xp, level = level})
+        end)
+    else
+        cb({xp = 0, level = 1})
+    end
+end)
+
