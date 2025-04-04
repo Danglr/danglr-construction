@@ -1,4 +1,5 @@
 local RSGCore = exports['rsg-core']:GetCoreObject()
+
 -- Tables --
 local pedstable = {}
 local promptstable = {}
@@ -52,8 +53,8 @@ local function PickupWoodLocation()
     SetBlipSprite(jobBlip, 1116438174, 1)
     SetBlipScale(jobBlip, 0.05)
 
-    RSGCore.Functions.Notify('Go grab some lumber...', 'error')
-    --TriggerEvent('rNotify:NotifyLeft', "          Go grab some lumber...", "", "generic_textures", "tick", 4500)
+    --RSGCore.Functions.Notify('Go grab some lumber...', 'error')
+    TriggerEvent('rNotify:ShowObjective', "Go grab some lumber", 4000)
 end
 
 local function DropWoodLocation()
@@ -66,7 +67,8 @@ local function DropWoodLocation()
     SetBlipSprite(dropBlip, 1116438174, 0.5)
     SetBlipScale(dropBlip, 0.10)
 
-    RSGCore.Functions.Notify('Head over to where the lumber is needed', 'error')
+    --RSGCore.Functions.Notify('Head over to where the lumber is needed', 'error')
+    TriggerEvent('rNotify:ShowObjective', "Go to where this is needed", 4000)
 end
 
 --------------------------------------
@@ -92,7 +94,7 @@ CreateThread(function()
                 if GetDistanceBetweenCoords(coords, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.x, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.y, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.z, true) < 1.3  then
                     DrawText3D(Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.x, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.y, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.z, "[G] | Pickup Wood")
                     if IsControlJustReleased(0, Config.Keys["G"]) then
-                        TriggerEvent('rsg-construction:PickupWood')
+                        TriggerEvent('danglr-construction:PickupWood')
                         Wait(1000)
                     end
                 end
@@ -104,7 +106,7 @@ CreateThread(function()
                 if GetDistanceBetweenCoords(coords, Config.Locations[closestJob]["DropLocations"][DropLocation].coords.x, Config.Locations[closestJob]["DropLocations"][DropLocation].coords.y, Config.Locations[closestJob]["DropLocations"][DropLocation].coords.z, true) < 1.5  then
                     DrawText3D(Config.Locations[closestJob]["DropLocations"][DropLocation].coords.x, Config.Locations[closestJob]["DropLocations"][DropLocation].coords.y, Config.Locations[closestJob]["DropLocations"][DropLocation].coords.z, "[G] | Place Wood")
                     if IsControlJustReleased(0, Config.Keys["G"]) then
-                        TriggerEvent('rsg-construction:DropWood')
+                        TriggerEvent('danglr-construction:DropWood')
                     end
                 end
             end
@@ -116,7 +118,7 @@ end)
 --------------- EVENTS --------------
 --------------------------------------
 
-RegisterNetEvent('rsg-construction:StartJob', function()
+RegisterNetEvent('danglr-construction:StartJob', function()
     local player = PlayerPedId()
     local coords = GetEntityCoords(player)
 
@@ -137,11 +139,12 @@ RegisterNetEvent('rsg-construction:StartJob', function()
         end
 
     else
-        RSGCore.Functions.Notify('You already have this job!', 'error')
+        --RSGCore.Functions.Notify('You already have this job!', 'error')
+        TriggerEvent('rNotify:ShowAdvancedRightNotification', "You Already Have This Job", "generic_textures", "tick", "COLOR_RED", 4000)
     end
 end)
 
-RegisterNetEvent('rsg-construction:EndJob', function()
+RegisterNetEvent('danglr-construction:EndJob', function()
     if hasJob then
         hasJob = false
         JobCount = 0
@@ -154,27 +157,29 @@ RegisterNetEvent('rsg-construction:EndJob', function()
             print(hasJob)
         end
     end
-    RSGCore.Functions.Notify('You have stopped working!', 'error')
-    --TriggerEvent('rNotify:NotifyLeft', "You Have Finished The Job", "", "generic_textures", "tick", 4500)
+    --RSGCore.Functions.Notify('You have stopped working!', 'error')
+    TriggerEvent('rNotify:ShowAdvancedRightNotification', "You Have Stopped Working", "generic_textures", "tick", "COLOR_RED", 4000)
 end)
 
-RegisterNetEvent('rsg-construction:CollectPaycheck', function()
-    print("Drop Count: "..DropCount)
+RegisterNetEvent('danglr-construction:CollectPaycheck', function()
+    print("Drop Count: " .. DropCount)
 
-    TriggerServerEvent('rsg-construction:GetDropCount', DropCount)
+    TriggerServerEvent('danglr-construction:GetDropCount', DropCount)
     Wait(100)
     if DropCount ~= 0 then
-        RSGCore.Functions.TriggerCallback('rsg-construction:CheckIfPaycheckCollected', function(hasBeenPaid)
+        RSGCore.Functions.TriggerCallback('danglr-construction:CheckIfPaycheckCollected', function(hasBeenPaid)
             if hasBeenPaid then
-                TriggerEvent('rsg-construction:EndJob')
-                RSGCore.Functions.Notify('You have been paid for your work!', 'error')
+                TriggerEvent('danglr-construction:EndJob')
+                --RSGCore.Functions.Notify('You have been paid for your work!', 'error')
+                TriggerEvent('rNotify:ShowAdvancedRightNotification', "You Have Been Paid For Working", "generic_textures", "tick", "COLOR_GREEN", 4000)
 
                 if Config.Prints then
                     print(hasBeenPaid)
                 end
 
             else -- Paid the money after initial check IE attempted to exploit
-                RSGCore.Functions.Notify('You have been paid for your work!', 'error')
+                --RSGCore.Functions.Notify('You have been paid for your work!', 'error')
+                --TriggerEvent('rNotify:ShowAdvancedRightNotification', "You Have Been Paid For Working", "generic_textures", "tick", "COLOR_RED", 4000)
 
                 if Config.Prints then
                     print(hasBeenPaid)
@@ -183,11 +188,12 @@ RegisterNetEvent('rsg-construction:CollectPaycheck', function()
             end
         end, source)
     else
-        RSGCore.Functions.Notify('You didn\'t do any work!', 'error')
+        --RSGCore.Functions.Notify('You didn\'t do any work!', 'error')
+        TriggerEvent('rNotify:ShowAdvancedRightNotification', "You Didnt Do Any Work", "generic_textures", "tick", "COLOR_RED", 4000)
     end
 end)
 
-RegisterNetEvent('rsg-construction:PickupWood', function()
+RegisterNetEvent('danglr-construction:PickupWood', function()
     local coords = GetEntityCoords(PlayerPedId())
     if hasJob then
         if not PickedUp then
@@ -204,7 +210,7 @@ RegisterNetEvent('rsg-construction:PickupWood', function()
             RemoveBlip(jobBlip)
 
             Wait(500)
-            for _,v in pairs(promptstable) do
+            for _, v in pairs(promptstable) do
                 PromptDelete(promptstable[v].PickupWoodPrompt)
             end
 
@@ -213,7 +219,7 @@ RegisterNetEvent('rsg-construction:PickupWood', function()
     end
 end)
 
-RegisterNetEvent('rsg-construction:DropWood', function()
+RegisterNetEvent('danglr-construction:DropWood', function()
     local coords = GetEntityCoords(PlayerPedId())
     
     if hasJob and DropCount <= Config.DropCount then
@@ -230,31 +236,27 @@ RegisterNetEvent('rsg-construction:DropWood', function()
 
         -- START ANIMATION --
         TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('world_player_dynamic_kneel'), -1, true, false, false, false)
-        RSGCore.Functions.Progressbar("placewood", "Placing Wood...", (Config.PlaceTime * 1000), false, true, {
-            disableMovement = true,
-            disableCarMovement = false,
-            disableMouse = false,
-            disableCombat = true,
-        }, {}, {}, {}, function() -- Done
+        Citizen.Wait(Config.PlaceTime * 1000)
+        ClearPedTasks(PlayerPedId())
 
-            DropCount = DropCount + 1
+        DropCount = DropCount + 1
 
-            if Config.Prints then
-                print("Drop Count: "..DropCount)
-            end
+        if Config.Prints then
+            print("Drop Count: " .. DropCount)
+        end
 
-            RemoveBlip(dropBlip)
+        RemoveBlip(dropBlip)
+        Wait(100)
 
-            Wait(100)
-
-            if DropCount < Config.DropCount then
-                PickupWoodLocation()
-            else
-                RSGCore.Functions.Notify('Work Completed! Go Get Your Check', 'error') 
-            end
-        end) 
+        if DropCount < Config.DropCount then
+            PickupWoodLocation()
+        else
+            --RSGCore.Functions.Notify('Work Completed! Go Get Your Check', 'error') 
+            TriggerEvent('rNotify:ShowAdvancedRightNotification', "Job Done, Go Get Your Check", "generic_textures", "tick", "COLOR_GREEN", 4000)
+        end
     else
-        RSGCore.Functions.Notify('Work done! Collect Your Check!', 'error') 
+        --RSGCore.Functions.Notify('Work done! Collect Your Check!', 'error')
+        TriggerEvent('rNotify:ShowAdvancedRightNotification', "Job Done, Go Get Your Check", "generic_textures", "tick", "COLOR_GREEN", 4000)
     end
 end)
 
@@ -262,7 +264,7 @@ end)
 --------------- JOB MENU -------------
 --------------------------------------
 
-RegisterNetEvent('rsg-construction:OpenJobMenu', function()
+RegisterNetEvent('danglr-construction:OpenJobMenu', function()
 
     if not hasJob then
 
@@ -275,7 +277,7 @@ RegisterNetEvent('rsg-construction:OpenJobMenu', function()
                 header = "Start Construction Job",
                 txt = "",
                 params = {
-                    event = 'rsg-construction:StartJob',
+                    event = 'danglr-construction:StartJob',
                 }
             },
             {
@@ -298,7 +300,7 @@ RegisterNetEvent('rsg-construction:OpenJobMenu', function()
                 header = "Finish Job",
                 txt = "",
                 params = {
-                    event = 'rsg-construction:CollectPaycheck',
+                    event = 'danglr-construction:CollectPaycheck',
                 }
             },
             {
@@ -319,25 +321,25 @@ end)
 ------- PED SPAWNING -----
 --------------------------
 
-function SET_PED_RELATIONSHIP_GROUP_HASH ( iVar0, iParam0 )
-    return Citizen.InvokeNative( 0xC80A74AC829DDD92, iVar0, _GET_DEFAULT_RELATIONSHIP_GROUP_HASH( iParam0 ) )
+function SET_PED_RELATIONSHIP_GROUP_HASH(iVar0, iParam0)
+    return Citizen.InvokeNative(0xC80A74AC829DDD92, iVar0, _GET_DEFAULT_RELATIONSHIP_GROUP_HASH(iParam0))
 end
 
-function _GET_DEFAULT_RELATIONSHIP_GROUP_HASH ( iParam0 )
-    return Citizen.InvokeNative( 0x3CC4A718C258BDD0 , iParam0 );
+function _GET_DEFAULT_RELATIONSHIP_GROUP_HASH(iParam0)
+    return Citizen.InvokeNative(0x3CC4A718C258BDD0, iParam0)
 end
 
-function modelrequest( model )
+function modelrequest(model)
     CreateThread(function()
-        RequestModel( model )
+        RequestModel(model)
     end)
 end
 
 CreateThread(function()
     for z, x in pairs(Config.JobNpc) do
-        while not HasModelLoaded( GetHashKey(Config.JobNpc[z]["Model"]) ) do
+        while not HasModelLoaded(GetHashKey(Config.JobNpc[z]["Model"])) do
             Wait(500)
-            modelrequest( GetHashKey(Config.JobNpc[z]["Model"]) )
+            modelrequest(GetHashKey(Config.JobNpc[z]["Model"]))
         end
         local npc = CreatePed(GetHashKey(Config.JobNpc[z]["Model"]), Config.JobNpc[z]["Pos"].x, Config.JobNpc[z]["Pos"].y, Config.JobNpc[z]["Pos"].z - 1, Config.JobNpc[z]["Heading"], false, false, 0, 0)
         while not DoesEntityExist(npc) do
@@ -347,7 +349,7 @@ CreateThread(function()
             options = {
                 {
                     type = "client",
-                    event = "rsg-construction:OpenJobMenu",
+                    event = "danglr-construction:OpenJobMenu",
                     icon = "fas fa-person-digging",
                     style = "",
                     label = "Construction Job",
@@ -365,7 +367,6 @@ CreateThread(function()
         SetEntityAsMissionEntity(npc, true, true)
         SetModelAsNoLongerNeeded(GetHashKey(Config.JobNpc[z]["Model"]))
         table.insert(pedstable, npc)
-
     end
 end)
 
@@ -374,19 +375,19 @@ end)
 ------------------------------------
 
 function DrawText3D(x, y, z, text)
-	local onScreen,_x,_y=GetScreenCoordFromWorldCoord(x, y, z)
-	local px,py,pz=table.unpack(GetGameplayCamCoord())
-	local dist = GetDistanceBetweenCoords(px,py,pz, x,y,z, 1)
-	local str = CreateVarString(10, "LITERAL_STRING", text, Citizen.ResultAsLong())
-	if onScreen then
-	  SetTextScale(0.30, 0.30)
-	  SetTextFontForCurrentCommand(1)
-	  SetTextColor(255, 255, 255, 215)
-	  SetTextCentre(1)
-	  DisplayText(str,_x,_y)
-	  local factor = (string.len(text)) / 225
-	  DrawSprite("feeds", "hud_menu_4a", _x, _y+0.0125,0.015+ factor, 0.03, 0.1, 35, 35, 35, 190, 0)
-	end
+    local onScreen, _x, _y = GetScreenCoordFromWorldCoord(x, y, z)
+    local px, py, pz = table.unpack(GetGameplayCamCoord())
+    local dist = GetDistanceBetweenCoords(px, py, pz, x, y, z, 1)
+    local str = CreateVarString(10, "LITERAL_STRING", text, Citizen.ResultAsLong())
+    if onScreen then
+        SetTextScale(0.30, 0.30)
+        SetTextFontForCurrentCommand(1)
+        SetTextColor(255, 255, 255, 215)
+        SetTextCentre(1)
+        DisplayText(str, _x, _y)
+        local factor = (string.len(text)) / 225
+        DrawSprite("feeds", "hud_menu_4a", _x, _y + 0.0125, 0.015 + factor, 0.03, 0.1, 35, 35, 35, 190, 0)
+    end
 end
 
 ------------------------------------
@@ -395,15 +396,15 @@ end
 
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
-        for _,v in pairs(pedstable) do
+        for _, v in pairs(pedstable) do
             DeletePed(v)
         end
-        for _,v in pairs(blipsTable) do
+        for _, v in pairs(blipsTable) do
             RemoveBlip(v)
         end
-        for k,_ in pairs(promptstable) do
-			PromptDelete(promptstable[k].name)
-		end
+        for k, _ in pairs(promptstable) do
+            PromptDelete(promptstable[k].name)
+        end
         RemoveBlip(jobBlip)
         RemoveBlip(dropBlip)
     end
