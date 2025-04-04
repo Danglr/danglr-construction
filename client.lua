@@ -76,8 +76,8 @@ CreateThread(function()
         SetBlipSprite(blip, 2305242038, 0.5)
         SetBlipScale(blip, 0.10)
         Citizen.InvokeNative(0x9CB1A1623062F402, blip, "Construction Job")
+        table.insert(blipsTable, blip)
     end
-    table.insert(blipsTable, blip)
 end)
 
 CreateThread(function()
@@ -152,7 +152,7 @@ RegisterNetEvent('danglr-construction:EndJob', function()
             print(hasJob)
         end
     end
-    TriggerEvent('rNotify:ShowAdvancedRightNotification', "You Have Stopped Working", "generic_textures", "tick", "COLOR_RED", 4000)
+    --TriggerEvent('rNotify:ShowAdvancedRightNotification', "You Have Stopped Working", "generic_textures", "tick", "COLOR_RED", 4000)
 end)
 
 RegisterNetEvent('danglr-construction:CollectPaycheck', function()
@@ -167,7 +167,7 @@ RegisterNetEvent('danglr-construction:CollectPaycheck', function()
         RSGCore.Functions.TriggerCallback('danglr-construction:CheckIfPaycheckCollected', function(hasBeenPaid)
             if hasBeenPaid then
                 TriggerEvent('danglr-construction:EndJob')
-                TriggerEvent('rNotify:ShowAdvancedRightNotification', "You have been paid for your work and earned XP!", "generic_textures", "tick", "COLOR_SUCCESS", 4000)
+                TriggerEvent('rNotify:ShowAdvancedRightNotification', "You have been paid for your work and earned XP!", "generic_textures", "tick", "COLOR_GREEN", 4000)
                 if Config.Prints then
                     print(hasBeenPaid)
                 end
@@ -183,19 +183,32 @@ RegisterNetEvent('danglr-construction:CollectPaycheck', function()
     end
 end)
 
+-- Updated wood pickup event to select the prop model based on player level.
 RegisterNetEvent('danglr-construction:PickupWood', function()
     local coords = GetEntityCoords(PlayerPedId())
-    if hasJob then
-        if not PickedUp then
+    if hasJob and not PickedUp then
+        RSGCore.Functions.TriggerCallback('rsg-construction:CheckXP', function(data)
+            local level = data.level or 1
+            if level > Config.MaxLevel then level = Config.MaxLevel end
+            local propModel = Config.PropModels[level] or "p_woodplank01x"
+            
+            local modelHash = GetHashKey(propModel)
+            if not HasModelLoaded(modelHash) then
+                RequestModel(modelHash)
+                while not HasModelLoaded(modelHash) do
+                    Wait(100)
+                end
+            end
+
             PickedUp = true
-            local WoodProp = CreateObject(GetHashKey("p_woodplank01x"), coords.x, coords.y, coords.z, 1, 0, 1)
+            local WoodProp = CreateObject(modelHash, coords.x, coords.y, coords.z, true, false, true)
             SetEntityAsMissionEntity(WoodProp, true, true)
             RequestAnimDict("mech_carry_box")
             while not HasAnimDictLoaded("mech_carry_box") do
                 Wait(100)
             end
             TaskPlayAnim(PlayerPedId(), "mech_carry_box", "idle", 2.0, -2.0, -1, 67109393, 0.0, false, 1245184, false, "UpperbodyFixup_filter", false)
-            Citizen.InvokeNative(0x6B9BBD38AB0796DF, WoodProp, PlayerPedId(), GetEntityBoneIndexByName(PlayerPedId(),"SKEL_L_Hand"), 0.1, 0.15, 0.0, 90.0, 90.0, 20.0, true, true, false, true, 1, true)
+            Citizen.InvokeNative(0x6B9BBD38AB0796DF, WoodProp, PlayerPedId(), GetEntityBoneIndexByName(PlayerPedId(), "SKEL_L_Hand"), 0.1, 0.15, 0.0, 90.0, 90.0, 20.0, true, true, false, true, 1, true)
             AttachedProp = true
             RemoveBlip(jobBlip)
 
@@ -205,7 +218,7 @@ RegisterNetEvent('danglr-construction:PickupWood', function()
             end
 
             DropWoodLocation()
-        end
+        end)
     end
 end)
 
@@ -225,7 +238,7 @@ RegisterNetEvent('danglr-construction:DropWood', function()
         PickedUp = false
 
         -- START ANIMATION --
-        TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('world_player_dynamic_kneel'), -1, true, false, false, false)
+        TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('world_human_crouch_inspect'), -1, true, false, false, false)
         Citizen.Wait(Config.PlaceTime * 1000)
         ClearPedTasks(PlayerPedId())
 
@@ -418,3 +431,4 @@ RegisterNetEvent('rsg-construction:CheckXP', function()
         TriggerEvent('rNotify:ShowAdvancedRightNotification', "Your Construction XP: " .. xp .. " | Level: " .. level, "generic_textures", "tick", "COLOR_GREEN", 4000)
     end)
 end)
+
