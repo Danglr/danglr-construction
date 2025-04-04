@@ -14,6 +14,25 @@ Config.PayPerDrop = 1.85 -- Pay is 10 cents per drop
 Config.DropCount = math.random(7, 10) -- Max drops before they must collect paycheck
 Config.PlaceTime = 5 -- How long the progressbar to place wood is - In Seconds
 
+-- XP AND LEVEL SYSTEM CONFIG --
+Config.XPBaseReward = 5            
+Config.XPRewardMultiplier = 1.0      
+Config.XPPerLevel = 100              
+Config.CashBonusPerLevel = 0.15      
+
+-- MAX LEVEL CONFIGURATION
+Config.MaxLevel = 5
+
+-- Prop models based on construction level (Levels 1 to 5)
+Config.PropModels = {
+    [1] = "p_woodplank01x",       -- Level 1 (default)
+    [2] = "s_beechers_frame01x",  -- Level 2 (replace with your actual model name)
+    [3] = "p_woodplank04x",       -- Level 3
+    [4] = "p_woodplank01x",   -- Level 4
+    [5] = "s_beechers_frame01x",  -- Level 5
+}
+
+
 
 -- NPC LOCATIONS --
 Config.JobNpc = {
