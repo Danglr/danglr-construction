@@ -49,11 +49,9 @@ local function PickupWoodLocation()
     end
 
     jobBlip = N_0x554d9d53f696d002(1664425300, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.x, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.y, Config.Locations[closestJob]["WoodLocations"][PickupLocation].coords.z)
-
     SetBlipSprite(jobBlip, 1116438174, 1)
     SetBlipScale(jobBlip, 0.05)
 
-    --RSGCore.Functions.Notify('Go grab some lumber...', 'error')
     TriggerEvent('rNotify:ShowObjective', "Go grab some lumber", 4000)
 end
 
@@ -63,11 +61,9 @@ local function DropWoodLocation()
     DropLocation = math.random(1, #Config.Locations[closestJob]["DropLocations"])
 
     dropBlip = N_0x554d9d53f696d002(1664425300, Config.Locations[closestJob]["DropLocations"][DropLocation].coords.x, Config.Locations[closestJob]["DropLocations"][DropLocation].coords.y, Config.Locations[closestJob]["DropLocations"][DropLocation].coords.z)
-
     SetBlipSprite(dropBlip, 1116438174, 0.5)
     SetBlipScale(dropBlip, 0.10)
 
-    --RSGCore.Functions.Notify('Head over to where the lumber is needed', 'error')
     TriggerEvent('rNotify:ShowObjective', "Go to where this is needed", 4000)
 end
 
@@ -75,11 +71,11 @@ end
 --------------- THREADS --------------
 --------------------------------------
 CreateThread(function()
-	for _, v in pairs(Config.JobNpc) do
+    for _, v in pairs(Config.JobNpc) do
         local blip = N_0x554d9d53f696d002(1664425300, v["Pos"].x, v["Pos"].y, v["Pos"].z)
         SetBlipSprite(blip, 2305242038, 0.5)
-		SetBlipScale(blip, 0.10)
-		Citizen.InvokeNative(0x9CB1A1623062F402, blip, "Construction Job")
+        SetBlipScale(blip, 0.10)
+        Citizen.InvokeNative(0x9CB1A1623062F402, blip, "Construction Job")
     end
     table.insert(blipsTable, blip)
 end)
@@ -139,7 +135,6 @@ RegisterNetEvent('danglr-construction:StartJob', function()
         end
 
     else
-        --RSGCore.Functions.Notify('You already have this job!', 'error')
         TriggerEvent('rNotify:ShowAdvancedRightNotification', "You Already Have This Job", "generic_textures", "tick", "COLOR_RED", 4000)
     end
 end)
@@ -157,38 +152,33 @@ RegisterNetEvent('danglr-construction:EndJob', function()
             print(hasJob)
         end
     end
-    --RSGCore.Functions.Notify('You have stopped working!', 'error')
     TriggerEvent('rNotify:ShowAdvancedRightNotification', "You Have Stopped Working", "generic_textures", "tick", "COLOR_RED", 4000)
 end)
 
 RegisterNetEvent('danglr-construction:CollectPaycheck', function()
     print("Drop Count: " .. DropCount)
-
+    
+    -- Award XP for the completed job. Adjust performance multiplier as needed.
+    TriggerServerEvent('rsg-construction:AddXP', Config.XPBaseReward, 1.2)
+    
     TriggerServerEvent('danglr-construction:GetDropCount', DropCount)
     Wait(100)
     if DropCount ~= 0 then
         RSGCore.Functions.TriggerCallback('danglr-construction:CheckIfPaycheckCollected', function(hasBeenPaid)
             if hasBeenPaid then
                 TriggerEvent('danglr-construction:EndJob')
-                --RSGCore.Functions.Notify('You have been paid for your work!', 'error')
-                TriggerEvent('rNotify:ShowAdvancedRightNotification', "You Have Been Paid For Working", "generic_textures", "tick", "COLOR_GREEN", 4000)
-
+                TriggerEvent('rNotify:ShowAdvancedRightNotification', "You have been paid for your work and earned XP!", "generic_textures", "tick", "COLOR_SUCCESS", 4000)
                 if Config.Prints then
                     print(hasBeenPaid)
                 end
 
-            else -- Paid the money after initial check IE attempted to exploit
-                --RSGCore.Functions.Notify('You have been paid for your work!', 'error')
-                --TriggerEvent('rNotify:ShowAdvancedRightNotification', "You Have Been Paid For Working", "generic_textures", "tick", "COLOR_RED", 4000)
-
+            else -- Attempt to prevent exploits
                 if Config.Prints then
                     print(hasBeenPaid)
                 end
-
             end
         end, source)
     else
-        --RSGCore.Functions.Notify('You didn\'t do any work!', 'error')
         TriggerEvent('rNotify:ShowAdvancedRightNotification', "You Didnt Do Any Work", "generic_textures", "tick", "COLOR_RED", 4000)
     end
 end)
@@ -251,11 +241,9 @@ RegisterNetEvent('danglr-construction:DropWood', function()
         if DropCount < Config.DropCount then
             PickupWoodLocation()
         else
-            --RSGCore.Functions.Notify('Work Completed! Go Get Your Check', 'error') 
             TriggerEvent('rNotify:ShowAdvancedRightNotification', "Job Done, Go Get Your Check", "generic_textures", "tick", "COLOR_GREEN", 4000)
         end
     else
-        --RSGCore.Functions.Notify('Work done! Collect Your Check!', 'error')
         TriggerEvent('rNotify:ShowAdvancedRightNotification', "Job Done, Go Get Your Check", "generic_textures", "tick", "COLOR_GREEN", 4000)
     end
 end)
@@ -278,6 +266,13 @@ RegisterNetEvent('danglr-construction:OpenJobMenu', function()
                 txt = "",
                 params = {
                     event = 'danglr-construction:StartJob',
+                }
+            },
+            {
+                header = "Check Construction XP",
+                txt = "View your current XP and level",
+                params = {
+                    event = 'rsg-construction:CheckXP'
                 }
             },
             {
@@ -408,4 +403,18 @@ AddEventHandler('onResourceStop', function(resource)
         RemoveBlip(jobBlip)
         RemoveBlip(dropBlip)
     end
+end)
+
+-- Updated event to display notifications using rNotify
+RegisterNetEvent('rsg-construction:Notify', function(message)
+    TriggerEvent('rNotify:ShowAdvancedRightNotification', message, "generic_textures", "tick", "COLOR_GREEN", 4000)
+end)
+
+-- New event to check construction XP and notify the player using rNotify
+RegisterNetEvent('rsg-construction:CheckXP', function()
+    RSGCore.Functions.TriggerCallback('rsg-construction:CheckXP', function(data)
+        local xp = data.xp or 0
+        local level = data.level or 1
+        TriggerEvent('rNotify:ShowAdvancedRightNotification', "Your Construction XP: " .. xp .. " | Level: " .. level, "generic_textures", "tick", "COLOR_GREEN", 4000)
+    end)
 end)
