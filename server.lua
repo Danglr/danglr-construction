@@ -50,7 +50,7 @@ RegisterNetEvent('rsg-construction:AddXP', function(xpAmount, performanceMultipl
                         local newXP = result[1].xp
                         local currentLevel = result[1].level
                         local leveledUp = false
-                        while newXP >= (currentLevel * Config.XPPerLevel) do
+                        while newXP >= (currentLevel * Config.XPPerLevel) and currentLevel < Config.MaxLevel do
                             currentLevel = currentLevel + 1
                             leveledUp = true
                         end
@@ -84,4 +84,3 @@ RSGCore.Functions.CreateCallback('rsg-construction:CheckXP', function(source, cb
         cb({xp = 0, level = 1})
     end
 end)
-
