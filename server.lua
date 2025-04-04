@@ -2,20 +2,18 @@ local RSGCore = exports['rsg-core']:GetCoreObject()
 local DropCount = 0
 
 -- SENDS DROP COUNT TO SERVER FOR CORRECT PAYMENT --
-RegisterNetEvent('rsg-construction:GetDropCount', function(count)
-    local source = src
+RegisterNetEvent('danglr-construction:GetDropCount', function(count)
+    local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
-
     DropCount = count
 end)
 
 -- CHECKS IF PLAYER WAS PAID TO PREVENT EXPLOITS --
-RSGCore.Functions.CreateCallback('rsg-construction:CheckIfPaycheckCollected', function(source, cb)
+RSGCore.Functions.CreateCallback('danglr-construction:CheckIfPaycheckCollected', function(source, cb)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src) 
-    local dropCount = tonumber(amount)
     local payment = (DropCount * Config.PayPerDrop)
-    if Player.Functions.AddMoney(Config.Moneytype, payment) then -- Removes money type and amount
+    if Player.Functions.AddMoney(Config.Moneytype, payment) then
         DropCount = 0
         cb(true)
     else
